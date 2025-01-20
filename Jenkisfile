@@ -9,7 +9,7 @@ node{
      stage('Run image') {
          docker.image('olegastrikeda/nginx').withRun('-p 80:80') { c ->
          sh 'docker ps'
-         sh 'curl localhost'
+         sh 'wget localhost'
          } 
        }  
      }    
