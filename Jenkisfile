@@ -1,15 +1,32 @@
 node {
     def app
+    
+    // Étape 1 : Cloner le dépôt
     stage('Clone') {
         checkout scm
     }
+
+    // Étape 2 : Construire l'image Docker
     stage('Build image') {
-        app = docker.build("olegastrikeda/nginx")
+        app = docker.build("olegastrikeda/nginx") // Nom de l'image Docker
     }
+
+    // Étape 3 : Exécuter l'image Docker
     stage('Run image') {
         docker.image('olegastrikeda/nginx').withRun('-p 80:80') { c ->
+            // Vérifier que le conteneur est lancé
             sh 'docker ps'
-            sh 'curl -s localhost:80'
+
+            // Ajout d'une attente pour s'assurer que le conteneur est prêt
+            sh 'sleep 5'
+
+            // Étape 3.1 : Vérifier que le fichier index.html existe dans le conteneur
+            sh 'docker exec $(docker ps -q) cat /usr/share/nginx/html/index.html'
+
+            // Étape 3.2 : Appeler le service via curl
+            sh 'curl -s localhost:80 || docker logs $(docker ps -l -q)'
         }
     }
 }
+
+
